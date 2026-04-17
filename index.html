@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Venus Phase — Live Ephemeris</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inconsolata:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Animated star field -->
+  <canvas id="starfield"></canvas>
+
+  <!-- Grain overlay -->
+  <div class="grain"></div>
+
+  <main>
+
+    <!-- ── Header ──────────────────────────────────────────────── -->
+    <header>
+      <div class="header-meta">
+        <span class="label">LIVE EPHEMERIS</span>
+        <span class="divider">·</span>
+        <span id="utc-clock" class="mono">--:--:-- UTC</span>
+      </div>
+      <h1>VENUS</h1>
+      <p class="subtitle"><em>Phase as viewed from Earth</em></p>
+    </header>
+
+    <!-- ── Phase visualiser ────────────────────────────────────── -->
+    <section class="phase-display">
+      <div class="orbit-ring outer-ring"></div>
+      <div class="orbit-ring inner-ring"></div>
+
+      <div class="venus-container">
+        <!-- canvas dimensions set by JS (DPR-aware) -->
+        <canvas id="venus-canvas"></canvas>
+        <div class="glow-halo"></div>
+      </div>
+    </section>
+
+    <!-- ── Data grid ───────────────────────────────────────────── -->
+    <section class="data-grid">
+      <div class="data-card">
+        <div class="card-label mono">ILLUMINATION</div>
+        <div class="card-value" id="val-illumination">—</div>
+        <div class="card-unit">% lit</div>
+      </div>
+      <div class="data-card">
+        <div class="card-label mono">PHASE NAME</div>
+        <div class="card-value phase-name" id="val-phase-name">—</div>
+        <div class="card-unit">&nbsp;</div>
+      </div>
+      <div class="data-card">
+        <div class="card-label mono">ELONGATION</div>
+        <div class="card-value" id="val-elongation">—</div>
+        <div class="card-unit">° from Sun</div>
+      </div>
+      <div class="data-card">
+        <div class="card-label mono">DISTANCE</div>
+        <div class="card-value" id="val-distance">—</div>
+        <div class="card-unit">AU from Earth</div>
+      </div>
+      <div class="data-card">
+        <div class="card-label mono">PHASE ANGLE</div>
+        <div class="card-value" id="val-angle">—</div>
+        <div class="card-unit">degrees</div>
+      </div>
+      <div class="data-card">
+        <div class="card-label mono">ANGULAR SIZE</div>
+        <div class="card-value" id="val-angular">—</div>
+        <div class="card-unit">arcseconds</div>
+      </div>
+    </section>
+
+    <!-- ── Phase timeline ──────────────────────────────────────── -->
+    <section class="timeline-section">
+      <div class="timeline-label mono">PHASE CYCLE POSITION</div>
+      <div class="timeline-bar">
+        <div class="timeline-track">
+          <div class="timeline-fill" id="timeline-fill"></div>
+          <div class="timeline-thumb" id="timeline-thumb"></div>
+        </div>
+        <div class="timeline-ends">
+          <span class="mono">NEW</span>
+          <span class="mono">CRESCENT</span>
+          <span class="mono">QUARTER</span>
+          <span class="mono">GIBBOUS</span>
+          <span class="mono">FULL</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Heliocentric geometry ────────────────────────────────── -->
+    <section class="geometry-section">
+      <div class="geometry-label mono">HELIOCENTRIC GEOMETRY</div>
+      <!-- canvas dimensions set by JS -->
+      <canvas id="geometry-canvas"></canvas>
+    </section>
+
+    <footer>
+      <p class="mono footer-text">
+        Computed via VSOP87 analytical ephemeris · Updates every second<br>
+        Julian Date <span id="jd-display">—</span>
+      </p>
+      <p class="mono footer-credit">No APIs · No build step · GitHub Pages ready</p>
+    </footer>
+
+  </main>
+
+  <!-- ephemeris must load before app -->
+  <script src="ephemeris.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

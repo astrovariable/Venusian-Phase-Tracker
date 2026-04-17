@@ -1,0 +1,325 @@
+/* ─── Reset ────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ─── Design tokens ────────────────────────────────────────── */
+:root {
+  --bg:          #03040e;
+  --surface:     #08091a;
+  --surface-hi:  #0f1128;
+  --border:      rgba(255, 220, 120, 0.18);
+  --border-hi:   rgba(255, 220, 120, 0.35);
+
+  /* High-contrast text */
+  --text-primary:   #f5f0e8;        /* near-white warm */
+  --text-secondary: #c8c0a8;        /* warm light grey */
+  --text-dim:       #8a8070;        /* readable muted */
+  --text-faint:     #504840;        /* very dim labels */
+
+  /* Venus gold palette */
+  --gold-bright: #ffd060;
+  --gold:        #e8b840;
+  --gold-dim:    #a07828;
+
+  /* Accent */
+  --venus-glow:  rgba(255, 200, 80, 0.20);
+  --blue:        #7ab8e8;
+}
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── Starfield canvas ──────────────────────────────────────── */
+#starfield {
+  position: fixed; inset: 0;
+  width: 100%; height: 100%;
+  z-index: 0; pointer-events: none;
+}
+
+/* ─── Grain overlay ─────────────────────────────────────────── */
+.grain {
+  position: fixed;
+  inset: -200%; width: 400%; height: 400%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.025;
+  animation: grain-drift 8s steps(10) infinite;
+  pointer-events: none; z-index: 1;
+}
+@keyframes grain-drift {
+  0%,100% { transform:translate(0,0); }    10% { transform:translate(-2%,-3%); }
+  30%     { transform:translate(3%,1%); }  50% { transform:translate(-1%,4%); }
+  70%     { transform:translate(2%,-1%); } 90% { transform:translate(-3%,2%); }
+}
+
+/* ─── Layout ────────────────────────────────────────────────── */
+main {
+  position: relative; z-index: 2;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 5rem;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 3.5rem;
+}
+
+/* ─── Utilities ─────────────────────────────────────────────── */
+.mono { font-family: 'Inconsolata', 'Courier New', monospace; }
+
+/* ─── Header ────────────────────────────────────────────────── */
+header {
+  text-align: center;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 0.6rem; width: 100%;
+}
+
+.header-meta {
+  display: flex; align-items: center; gap: 0.8rem;
+  font-family: 'Inconsolata', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+.header-meta .divider { color: var(--text-faint); }
+
+#utc-clock {
+  font-family: 'Inconsolata', monospace;
+  font-size: 0.85rem;
+  color: var(--gold-bright);
+  letter-spacing: 0.12em;
+}
+
+h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(4rem, 14vw, 8rem);
+  letter-spacing: 0.4em;
+  text-indent: 0.4em;          /* offset letter-spacing */
+  line-height: 1;
+  color: var(--text-primary);
+  /* Subtle warm text shadow for depth */
+  text-shadow: 0 0 60px rgba(255, 200, 80, 0.15);
+}
+h1::after {
+  content: '';
+  display: block;
+  width: 1px;
+  height: 2.5rem;
+  background: linear-gradient(to bottom, var(--gold), transparent);
+  margin: 0.7rem auto 0;
+}
+
+.subtitle {
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--text-secondary);
+  letter-spacing: 0.06em;
+  font-weight: 300;
+}
+
+/* ─── Phase display ─────────────────────────────────────────── */
+.phase-display {
+  position: relative;
+  width: 320px; height: 320px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.orbit-ring {
+  position: absolute; border-radius: 50%;
+  animation: slow-spin linear infinite;
+}
+.outer-ring {
+  width: 310px; height: 310px;
+  border: 1px dashed rgba(255,200,80,0.09);
+  animation-duration: 120s;
+}
+.inner-ring {
+  width: 240px; height: 240px;
+  border: 1px solid rgba(255,200,80,0.12);
+  animation-duration: 80s;
+  animation-direction: reverse;
+}
+@keyframes slow-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.venus-container {
+  position: relative;
+  width: 260px; height: 260px;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 2;
+}
+#venus-canvas {
+  position: relative; z-index: 2;
+  filter: drop-shadow(0 0 28px rgba(255, 190, 60, 0.35));
+}
+.glow-halo {
+  position: absolute; inset: -24px; border-radius: 50%;
+  background: radial-gradient(circle, var(--venus-glow) 0%, transparent 68%);
+  animation: halo-pulse 4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes halo-pulse {
+  0%,100% { opacity: 0.6; transform: scale(1); }
+  50%     { opacity: 1.0; transform: scale(1.06); }
+}
+
+/* ─── Data grid ─────────────────────────────────────────────── */
+.data-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  width: 100%;
+  background: var(--border);    /* gap colour = border lines */
+  border: 1px solid var(--border);
+  overflow: hidden;
+  border-radius: 2px;
+}
+
+.data-card {
+  background: var(--surface);
+  padding: 1.4rem 1.3rem 1.2rem;
+  display: flex; flex-direction: column; gap: 0.5rem;
+  transition: background 0.25s;
+  cursor: default;
+}
+.data-card:hover { background: var(--surface-hi); }
+
+.card-label {
+  font-family: 'Inconsolata', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  color: var(--text-dim);          /* was --muted at #5a5242, now readable */
+  text-transform: uppercase;
+}
+
+.card-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.4rem;
+  font-weight: 300;
+  color: var(--text-primary);      /* near-white, maximum contrast */
+  line-height: 1;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.card-value.phase-name {
+  font-size: 1.5rem;
+  font-style: italic;
+  color: var(--gold-bright);       /* bright gold, highly visible */
+}
+
+.card-unit {
+  font-family: 'Inconsolata', monospace;
+  font-size: 0.68rem;
+  color: var(--gold-dim);
+  letter-spacing: 0.1em;
+}
+
+/* ─── Timeline ───────────────────────────────────────────────── */
+.timeline-section {
+  width: 100%;
+  display: flex; flex-direction: column; gap: 1rem;
+}
+.timeline-label {
+  font-family: 'Inconsolata', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.timeline-track {
+  width: 100%; height: 3px;
+  background: rgba(255,200,80,0.12);
+  position: relative; overflow: visible;
+  border-radius: 2px;
+}
+.timeline-fill {
+  height: 100%; border-radius: 2px;
+  background: linear-gradient(to right, rgba(200,120,20,0.3), var(--gold-bright));
+  transition: width 1s ease;
+}
+.timeline-thumb {
+  position: absolute; top: 50%;
+  width: 12px; height: 12px;
+  background: var(--gold-bright);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 14px rgba(255,210,60,0.7);
+  transition: left 1s ease;
+}
+.timeline-ends {
+  display: flex; justify-content: space-between;
+  font-family: 'Inconsolata', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  color: var(--text-dim);           /* was var(--muted) = #5a5242, too dark */
+  margin-top: 0.5rem;
+}
+
+/* ─── Geometry diagram ──────────────────────────────────────── */
+.geometry-section {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 0.8rem; width: 100%;
+}
+.geometry-label {
+  font-family: 'Inconsolata', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  align-self: flex-start;
+}
+#geometry-canvas { max-width: 100%; }
+
+/* ─── Footer ─────────────────────────────────────────────────── */
+footer {
+  width: 100%;
+  text-align: center;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 0.5rem;
+}
+.footer-text {
+  font-family: 'Inconsolata', monospace;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+  line-height: 1.9;
+}
+.footer-credit {
+  font-family: 'Inconsolata', monospace;
+  font-size: 0.65rem;
+  color: var(--text-faint);
+  letter-spacing: 0.1em;
+}
+
+/* ─── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 580px) {
+  .data-grid               { grid-template-columns: repeat(2, 1fr); }
+  .phase-display           { width: 280px; height: 280px; }
+  .outer-ring              { width: 272px; height: 272px; }
+  .inner-ring              { width: 210px; height: 210px; }
+  .venus-container         { width: 220px; height: 220px; }
+  .card-value              { font-size: 1.9rem; }
+  .card-value.phase-name   { font-size: 1.25rem; }
+}
+
+/* ─── Entrance animations ────────────────────────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+header             { animation: fade-up 1.0s        ease both; }
+.phase-display     { animation: fade-up 1.0s 0.15s  ease both; }
+.data-grid         { animation: fade-up 1.0s 0.30s  ease both; }
+.timeline-section  { animation: fade-up 1.0s 0.45s  ease both; }
+.geometry-section  { animation: fade-up 1.0s 0.55s  ease both; }
+footer             { animation: fade-up 1.0s 0.70s  ease both; }
